@@ -10,5 +10,6 @@ run_settings:
   verbose_conv: true
   pairwise: true
   triples: true
+  c11: false
   extrapolate_triples: true
   r2tol: 0.9925

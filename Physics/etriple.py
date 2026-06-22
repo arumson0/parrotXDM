@@ -6,7 +6,7 @@ os.environ["OMP_NUM_THREADS"] = "32"
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../Kernels')))
 import c9_kernel
 
-def etriple(tau, mtrx,c6,rc,c9,zinv,a1,a2,zdamp,damp_type_int,rmax2,l,E_CONVERT,act_conv,verbose,r2tol):
+def etriple(tau, mtrx,c6,c8,rc,c9,c11,zinv,a1,a2,zdamp,damp_type_int,rmax2,l,E_CONVERT,act_conv,verbose,r2tol,boolc11):
     e9_total = 0
     energies = []
     delta = []
@@ -22,10 +22,10 @@ def etriple(tau, mtrx,c6,rc,c9,zinv,a1,a2,zdamp,damp_type_int,rmax2,l,E_CONVERT,
     # F90: c9_loops(tau,mtrx,c6,rc,c9,zinv,a1,a2,zdamp,damp,rmax2,n,l,e9_shell)
     for n in range(0, max_shell+1):
         e_shell = c9_kernel.c9_loops(
-            tau, mtrx, c6, rc, c9, zinv, 
+            tau, mtrx, c6, c8, rc, c9, c11, zinv, 
             a1, a2, zdamp, 
             damp_type_int, rmax2,
-            n, l
+            n=n, l=l, boolc11=boolc11
         )
     
         e9_total += (1/6) * e_shell # 1/3 prevents triple counting

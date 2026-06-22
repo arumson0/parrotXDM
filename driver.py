@@ -55,11 +55,6 @@ def run_driver(yaml_path):
             damp_type_int = 1
             print(f" Z damping selected. Product of three sqrt(f_6 (Rij)) for triples.")
             print(f"    z_damp    = {zdamp}")
-        elif config.damping=='bjsqrt':
-            print(f" BJ damping selected. Product of three sqrt(f_6 (Rij)) for triples.")
-            damp_type_int = 2
-            print(f"    a1        = {a1}")
-            print(f"    a2 (Bohr) = {a2}")
         
         # Set E_CONVERT for units:
         unit = config.output_unit.lower()
@@ -102,7 +97,7 @@ def run_driver(yaml_path):
 
         # Initalize XDM energies
         e_xdm_pairwise = 0
-        e_xdm_c9 = 0
+        e_xdm_triples  = 0
         # Do the pairwise XDM calculation
         if config.pairwise:
             e_xdm_pairwise = epair(
@@ -116,17 +111,25 @@ def run_driver(yaml_path):
         # Do the triple-wise XDM calculation
         if config.triples:
             # First, compute all the C9's
-            c9 = ctriple(alpha_scl,m1,l)
-            print("+ C9 Coeffcients")
-            print(f"#  i   j   k  C9          ")
-            for i in range(l):
-                for j in range(i+1):
-                    for k in range(j+1):
-                        print(f" {i+1:3} {j+1:3} {k+1:3}  {c9[i,j,k]:.5e}")
-            e_xdm_c9 = etriple(tau, mtrx,c6,rc,c9,zinv,a1,a2,zdamp,damp_type_int,rmax2,l,E_CONVERT,(not config.extrapolate_triples),config.verbose_conv, config.r2tol)
-            print(f"Triple-wise XDM({config.damping.upper()}) energy ({config.output_unit}): {E_CONVERT*e_xdm_c9:12.7f}" )
+            c9, c11 = ctriple(alpha_scl,m1,m2,m3,l)
+            if config.boolc11:
+                print("+ Triple-wise Coeffcients")
+                print(f"#  i   j   k  C9     C11 (three components)     ")
+                for i in range(l):
+                    for j in range(i+1):
+                        for k in range(j+1):
+                            print(f" {i+1:3} {j+1:3} {k+1:3}  {c9[i,j,k]:.5e} {c11[i,j,k,0]:.5e} {c11[i,j,k,1]:.5e} {c11[i,j,k,2]:.5e}")
+            else:
+                print("+ C9 Coeffcients")
+                print(f"#  i   j   k  C9")
+                for i in range(l):
+                    for j in range(i+1):
+                        for k in range(j+1):
+                            print(f" {i+1:3} {j+1:3} {k+1:3}  {c9[i,j,k]:.5e}")
+            e_xdm_triples = etriple(tau, mtrx,c6,c8,rc,c9,c11,zinv,a1,a2,zdamp,damp_type_int,rmax2,l,E_CONVERT,(not config.extrapolate_triples),config.verbose_conv, config.r2tol,config.boolc11)
+            print(f"Triple-wise XDM({config.damping.upper()}) energy ({config.output_unit}): {E_CONVERT*e_xdm_triples:12.7f}" )
 
-        e_xdm_total = e_xdm_pairwise + e_xdm_c9
+        e_xdm_total = e_xdm_pairwise + e_xdm_triples
         print(f"Total XDM({config.damping.upper()}) energy ({config.output_unit}): {E_CONVERT*e_xdm_total: 12.7f}")
 
 # CLI

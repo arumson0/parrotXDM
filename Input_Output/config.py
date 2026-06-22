@@ -19,6 +19,7 @@ class Config:
         self.verbose_conv: bool = run_settings.get("verbose_conv", True)
         self.pairwise: bool = run_settings.get("pairwise", True)
         self.triples: bool = run_settings.get("triples", True)
+        self.boolc11: bool = run_settings.get("c11", True)
         self.extrapolate_triples: bool = run_settings.get("extrapolate_triples", True)
         self.r2tol: float = run_settings.get("r2tol", 0.99)
 

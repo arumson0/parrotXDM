@@ -14,6 +14,7 @@ def apply_defaults(cfg):
     rs = cfg["run_settings"]
     rs.setdefault("pairwise", True)
     rs.setdefault("triples", True)
+    rs.setdefault("c11", False)
     rs.setdefault("verbose_conv", True)
     rs.setdefault("extrapolate_triples", True)
     rs.setdefault("output_unit", "Ry")

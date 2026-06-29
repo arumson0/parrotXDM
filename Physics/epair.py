@@ -18,16 +18,22 @@ def epair(tau, mtrx, c6, c8, c10, rc, zinv, damp_type_int,rmax2,a1,a2,zdamp,l,E_
         print("Starting the pairwise XDM computation...")
     start_time = time.time()
 
+    e6_total   = 0.0
+    e8_total   = 0.0
+    e10_total  = 0.0
     exdm_total = 0.0
     while not_converged:
         # Call Fortran routine for the current supercell
-        exdm_shell = cpair_kernel.pairwise_xdm(
+        exdm_shell, e6, e8, e10 = cpair_kernel.pairwise_xdm(
             tau, mtrx, rc, c6, c8, c10, zinv,
             a1, a2, zdamp,
             damp_type_int, rmax2,
             n_vecs,
             l
         )
+        e6_total   += 0.5 * e6
+        e8_total   += 0.5 * e8
+        e10_total  += 0.5 * e10
         exdm_total += 0.5 * exdm_shell # 0.5 accounts for double counting.
         vdw_energies_list.append(exdm_total)
 
@@ -51,4 +57,4 @@ def epair(tau, mtrx, c6, c8, c10, rc, zinv, damp_type_int,rmax2,a1,a2,zdamp,l,E_
         print('Final supercell size:', n_vecs)
         print(f"Computed in: {end_time - start_time:.2f} seconds")
     e_xdm_pairwise = exdm_total
-    return e_xdm_pairwise
+    return e_xdm_pairwise, e6_total, e8_total, e10_total

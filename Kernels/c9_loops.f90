@@ -34,7 +34,15 @@ e9_shell = 0.0d0
 ! Private lists all temporaries used inside loops
 ! No need for e_local or atomic
 !$omp parallel do collapse(6) reduction(+:e9_shell) default(shared) &
-!$omp private(nl1,nl2,nl3,ml1,ml2,ml3,i,j,k,ri,rj,rk,rijv,rikv,rjkv,Tn,Tm,rij2,rik2,rjk2,rij,rik,rjk,cosi,g,f)
+!$omp private(nl1,nl2,nl3,ml1,ml2,ml3,i,j,k) &
+!$omp private(ri,rj,rk,rijv,rikv,rjkv,Tn,Tm) &
+!$omp private(rij2,rik2,rjk2,rij,rik,rjk) &
+!$omp private(theta_i,theta_j,theta_k,g9,f,W) &
+!$omp private(rij3,rik3,rjk3,rij4,rik4,rjk4) &
+!$omp private(fij,fik,fjk,e9_tmp,e11_tmp) &
+!$omp private(rvdwij,rvdwik,rvdwjk) &
+!$omp private(correij3,correik3,correjk3,correij4,correik4,correjk4) &
+!$omp schedule(dynamic, 100)
 
 do nl1 = -n, n
   do nl2 = -n, n

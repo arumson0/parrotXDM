@@ -12,6 +12,7 @@ from Physics.etriple import etriple
 import numpy as np
 import sys
 import os
+print(f"OMP_NUM_THREADS detected by environment: {os.environ.get('OMP_NUM_THREADS')}")
 
 def run_driver(yaml_path):
     # Load YAML -> dict -> Config object
@@ -100,13 +101,17 @@ def run_driver(yaml_path):
         e_xdm_triples  = 0
         # Do the pairwise XDM calculation
         if config.pairwise:
-            e_xdm_pairwise = epair(
+            e_xdm_pairwise, e6, e8, e10 = epair(
                 tau, mtrx, c6, c8, c10, rc, zinv,
                 damp_type_int, rmax2,
                 a1, a2, zdamp,
                 l, E_CONVERT, config.verbose_conv
             )
         print(f"Pairwise XDM({config.damping.upper()}) energy ({config.output_unit}): {E_CONVERT*e_xdm_pairwise:12.7f}" )
+        print(f"Energy breakdown:")
+        print(f"   E(C6, {config.output_unit}) = {E_CONVERT*e6:12.7f}")
+        print(f"   E(C8, {config.output_unit}) = {E_CONVERT*e8:12.7f}")
+        print(f"   E(C10,{config.output_unit}) = {E_CONVERT*e10:12.7f}")
 
         # Do the triple-wise XDM calculation
         if config.triples:
@@ -126,7 +131,10 @@ def run_driver(yaml_path):
                     for j in range(i+1):
                         for k in range(j+1):
                             print(f" {i+1:3} {j+1:3} {k+1:3}  {c9[i,j,k]:.5e}")
-            e_xdm_triples = etriple(tau, mtrx,c6,c8,rc,c9,c11,zinv,a1,a2,zdamp,damp_type_int,rmax2,l,E_CONVERT,(not config.extrapolate_triples),config.verbose_conv, config.r2tol,config.boolc11)
+            # use a different rmax2 for triples?
+            rmax2c9 = (np.max(c9)/1.0E-15)**(2.0/9.0)
+
+            e_xdm_triples = etriple(tau, mtrx,c6,c8,rc,c9,c11,zinv,a1,a2,zdamp,damp_type_int,rmax2c9,l,E_CONVERT,(not config.extrapolate_triples),config.verbose_conv, config.r2tol,config.boolc11)
             print(f"Triple-wise XDM({config.damping.upper()}) energy ({config.output_unit}): {E_CONVERT*e_xdm_triples:12.7f}" )
 
         e_xdm_total = e_xdm_pairwise + e_xdm_triples

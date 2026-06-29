@@ -35,7 +35,7 @@ def etriple(tau, mtrx,c6,c8,rc,c9,c11,zinv,a1,a2,zdamp,damp_type_int,rmax2,l,E_C
             delta = np.append(delta, energies[-1] - energies[-2])
             if len(delta)<=7 or act_conv:
                 if verbose:
-                    print(f"Shell {n}:     E_total = {energies[-1]:5.9f}     ΔE = {delta[-1]:5.9f}")
+                    print(f"Shell {n}:     E_total = {energies[-1]:5.9f}     ΔE = {delta[-1]:5.9f}    Time: {time.time() - start_time:5.2f} s")
 
             if act_conv:
                 if abs(delta[-1]) < threshold:

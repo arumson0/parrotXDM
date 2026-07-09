@@ -54,7 +54,11 @@ def run_driver(yaml_path):
             print(f"    a2 (Bohr) = {a2}")
         elif config.damping=='z':
             damp_type_int = 1
-            print(f" Z damping selected. Product of three sqrt(f_6 (Rij)) for triples.")
+            print(f" Z damping selected. Product of three partial Z-damping functions.")
+            print(f"    z_damp    = {zdamp}")
+        elif config.damping=='lz':
+            damp_type_int = 2
+            print(f" LZ damping selected. Product of three partial LZ-damping functions.")
             print(f"    z_damp    = {zdamp}")
         
         # Set E_CONVERT for units:

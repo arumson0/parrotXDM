@@ -20,6 +20,7 @@ real(8) :: Tn(3), Tm(3)
 real(8) :: rij3, rik3, rjk3
 real(8) :: rij4, rik4, rjk4
 real(8) :: fij, fik, fjk
+real(8) :: zij, zik, zjk
 real(8) :: e9_tmp, e11_tmp
 real(8) :: W(3)
 real(8) :: rvdwij,rvdwik,rvdwjk
@@ -40,6 +41,7 @@ e9_shell = 0.0d0
 !$omp private(theta_i,theta_j,theta_k,g9,f,W) &
 !$omp private(rij3,rik3,rjk3,rij4,rik4,rjk4) &
 !$omp private(fij,fik,fjk,e9_tmp,e11_tmp) &
+!$omp private(zij,zik,zjk)
 !$omp private(rvdwij,rvdwik,rvdwjk) &
 !$omp private(correij3,correik3,correjk3,correij4,correik4,correjk4) &
 !$omp schedule(dynamic, 100)
@@ -108,6 +110,15 @@ do nl1 = -n, n
                     fik = (rik3) / (rik3 + (zdamp*c6(i,k)*zinv(i,k))**(1.d0/2.d0))
                     fjk = (rjk3) / (rjk3 + (zdamp*c6(j,k)*zinv(j,k))**(1.d0/2.d0))
                     f = fij*fik*fjk
+                  else if (damp == 2) then
+                    zij = 1.d0 / zinv(i,j)
+                    zik = 1.d0 / zinv(i,k)
+                    zjk = 1.d0 / zinv(j,k)
+
+                    fij = (rij3) / (rij3 + (2.1111d0 * zdamp * c6(i,j) / (zij + 0.5571d0*zij * DLOG(zij)))**0.5d0 )
+                    fik = (rik3) / (rik3 + (2.1111d0 * zdamp * c6(i,k) / (zik + 0.5571d0*zik * DLOG(zik)))**0.5d0 )
+                    fjk = (rjk3) / (rjk3 + (2.1111d0 * zdamp * c6(j,k) / (zjk + 0.5571d0*zjk * DLOG(zjk)))**0.5d0 )
+                    f = fij*fik*fjk
                   endif
 
                   e9_tmp  = c9(i,j,k)*g9*f/(rij3*rik3*rjk3)
@@ -128,6 +139,17 @@ do nl1 = -n, n
                       correij4 = (zdamp*c8(i,j)*zinv(i,j))**(0.5d0)
                       correik4 = (zdamp*c8(i,k)*zinv(i,k))**(0.5d0)
                       correjk4 = (zdamp*c8(j,k)*zinv(j,k))**(0.5d0)
+                      e11_tmp = c11(i,j,k,1)*W(1)/((rij4+correij4)*(rik4+correik4)*(rjk3+correjk3)) &
+                               +c11(i,j,k,2)*W(2)/((rij4+correij4)*(rik3+correik3)*(rjk4+correjk4)) &
+                               +c11(i,j,k,3)*W(3)/((rij3+correij3)*(rik4+correik4)*(rjk4+correjk4)) 
+
+                    else if (damp == 2) then
+                      correij3 = (2.1111d0 *zdamp*c6(i,j) / (zij + 0.5571d0*zij * DLOG(zij)))**(0.5d0)
+                      correik3 = (2.1111d0 *zdamp*c6(i,k) / (zik + 0.5571d0*zik * DLOG(zik)))**(0.5d0)
+                      correjk3 = (2.1111d0 *zdamp*c6(j,k) / (zjk + 0.5571d0*zjk * DLOG(zjk)))**(0.5d0)
+                      correij4 = (2.1111d0 *zdamp*c8(i,j) / (zij + 0.5571d0*zij * DLOG(zij)))**(0.5d0)
+                      correik4 = (2.1111d0 *zdamp*c8(i,k) / (zik + 0.5571d0*zik * DLOG(zik)))**(0.5d0)
+                      correjk4 = (2.1111d0 *zdamp*c8(j,k) / (zjk + 0.5571d0*zjk * DLOG(zjk)))**(0.5d0)
                       e11_tmp = c11(i,j,k,1)*W(1)/((rij4+correij4)*(rik4+correik4)*(rjk3+correjk3)) &
                                +c11(i,j,k,2)*W(2)/((rij4+correij4)*(rik3+correik3)*(rjk4+correjk4)) &
                                +c11(i,j,k,3)*W(3)/((rij3+correij3)*(rik4+correik4)*(rjk4+correjk4)) 

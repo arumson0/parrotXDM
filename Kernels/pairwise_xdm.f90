@@ -11,6 +11,7 @@ subroutine pairwise_xdm(tau, mtrx, rc, c6, c8, c10, zinv, a1, a2, zdamp, damp, r
 
     integer :: nl1,nl2,nl3,i,j
     real(8) :: rij, rij2, f6,f8,f10
+    real(8) :: zij
     real(8) :: coord_i(3), coord_j(3), vec_rij(3)
     real(8) :: e_local
     real(8) :: e6_local, e8_local, e10_local
@@ -37,7 +38,7 @@ subroutine pairwise_xdm(tau, mtrx, rc, c6, c8, c10, zinv, a1, a2, zdamp, damp, r
                 if (rij2 > rmax2) cycle
                 rij = sqrt(rij2)
 
-                if (damp == 0 .or. damp == 2) then
+                if (damp == 0) then
                   f6  = 1.d0 / (rij**6 + (a1*rc(i,j) + a2)**6)
                   f8  = 1.d0 / (rij**8 + (a1*rc(i,j) + a2)**8)
                   f10 = 1.d0 / (rij**10 + (a1*rc(i,j) + a2)**10)
@@ -45,6 +46,11 @@ subroutine pairwise_xdm(tau, mtrx, rc, c6, c8, c10, zinv, a1, a2, zdamp, damp, r
                   f6  = 1.d0 / (rij**6  +  c6(i,j)*zdamp*zinv(i,j))
                   f8  = 1.d0 / (rij**8  +  c8(i,j)*zdamp*zinv(i,j))
                   f10 = 1.d0 / (rij**10 + c10(i,j)*zdamp*zinv(i,j))
+                else if (damp == 2 ) then
+                  zij = 1.d0 / zinv(i,j)
+                  f6  = 1.d0 / (rij**6  +  c6(i,j)*2.1111d0*zdamp / (zij + 0.5571d0*zij * DLOG(zij)))
+                  f8  = 1.d0 / (rij**8  +  c8(i,j)*2.1111d0*zdamp / (zij + 0.5571d0*zij * DLOG(zij)))
+                  f10 = 1.d0 / (rij**10 + c10(i,j)*2.1111d0*zdamp / (zij + 0.5571d0*zij * DLOG(zij)))
                 end if
 
                 e6_local  = -c6(i,j)*f6

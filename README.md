@@ -30,7 +30,7 @@ Tags:
 
 `functional`: determines the damping parameters for XDM. Currently supports B86bPBE, PBE, and revPBE.
 
-`damping`: type of damping function. Options are 'bj' or 'z'
+`damping`: type of damping function. Options are 'bj', 'z', or the EXPERIMENTAL 'lz'
 
 `output_unit`: What unit you'd like the XDM energy to be expressed in. Options are Ha, Ry, eV, kcal/mol, kj/mol.
 

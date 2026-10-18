@@ -1,4 +1,4 @@
-# parrotXDM 🦜
+# parrotXDM
 This is a python tool to compute XDM dispersion energies, given the output of an electronic structure method already containing XDM data (e.g. Quantum ESPRESSO or FHI-aims). The use is to run with alternative damping functions and the Axilrod-Teller-Muto C9 dispersion term.
 
 # USAGE:

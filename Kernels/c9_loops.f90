@@ -26,6 +26,7 @@ real(8) :: W(3)
 real(8) :: rvdwij,rvdwik,rvdwjk
 real(8) :: correij3,correik3,correjk3
 real(8) :: correij4,correik4,correjk4
+real(8) :: ci, cj, ck
 
 e9_shell = 0.0d0
 
@@ -41,7 +42,7 @@ e9_shell = 0.0d0
 !$omp private(theta_i,theta_j,theta_k,g9,f,W) &
 !$omp private(rij3,rik3,rjk3,rij4,rik4,rjk4) &
 !$omp private(fij,fik,fjk,e9_tmp,e11_tmp) &
-!$omp private(zij,zik,zjk)
+!$omp private(zij,zik,zjk) &
 !$omp private(rvdwij,rvdwik,rvdwjk) &
 !$omp private(correij3,correik3,correjk3,correij4,correik4,correjk4) &
 !$omp schedule(dynamic, 100)
@@ -81,9 +82,15 @@ do nl1 = -n, n
                   rik = sqrt(rik2)
                   rjk = sqrt(rjk2)
 
-                  theta_i = dot_product(rijv, rikv) / (rij*rik)
-                  theta_j =-dot_product(rijv, rjkv) / (rij*rjk)
-                  theta_k = dot_product(rikv, rjkv) / (rik*rjk)
+                  ! cosines of the interior angles
+                  ci =  dot_product(rijv, rikv) / (rij*rik)    ! angle at i, between i->j and i->k
+                  cj = -dot_product(rijv, rjkv) / (rij*rjk)    ! angle at j, between j->i and j->k
+                  ck =  dot_product(rikv, rjkv) / (rik*rjk)    ! angle at k, between k->i and k->j
+                  
+                  ! angles in radians, in [0, pi]
+                  theta_i = acos(max(-1.d0, min(1.d0, ci)))
+                  theta_j = acos(max(-1.d0, min(1.d0, cj)))
+                  theta_k = acos(max(-1.d0, min(1.d0, ck)))
                   g9 = 3.d0*(cos(theta_i)*cos(theta_j)*cos(theta_k)) + 1.d0
 
                   W(1) = (1.d0/16.d0)*(9.d0*cos(theta_i) - 25.d0*cos(3.d0*theta_i) + 6.d0*cos(theta_j-theta_k)*(3.d0+&
